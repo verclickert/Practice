@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import rip.crystal.practice.api.file.FileConfig;
 import rip.crystal.practice.cPractice;
 import rip.crystal.practice.game.event.game.EventGame;
 import rip.crystal.practice.game.event.game.EventGameState;
@@ -25,7 +26,7 @@ public class Hotbar {
 	private static final Map<HotbarItem, HotbarEntry> items = new HashMap<>();
 
 	public static void init() {
-		FileConfiguration config = cPractice.get().getHotbarConfig().getConfiguration();
+		FileConfiguration config = cPractice.get().getConfig();
 
 		for (HotbarItem hotbarItem : HotbarItem.values()) {
 			try {
@@ -41,7 +42,7 @@ public class Hotbar {
 				if (slot > 0) hotbarEntry = new HotbarEntry(builder.build(), slot - 1);
 				else hotbarEntry = new HotbarEntry(builder.build(), -1);
 
-				if(config.getBoolean(path + "ENABLED") || !config.configuration.contains(path + "ENABLED")) {
+				if(config.getBoolean(path + "ENABLED") || !config.contains(path + "ENABLED")) {
                     			items.put(hotbarItem, hotbarEntry);
                 		}
 			} catch (Exception e) {

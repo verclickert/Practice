@@ -84,21 +84,21 @@
             <artifactId>cspigot-parent</artifactId>
             <version>0.1-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/cSpigot.jar</systemPath>
+            <systemPath>F:/libs/cSpigot.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>ga.windpvp</groupId>
             <artifactId>windspigot</artifactId>
             <version>2.1.2-HOTFIX</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/WindSpigot.jar</systemPath>
+            <systemPath>F:/libs/WindSpigot.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>pt.foxspigot.jar</groupId>
             <artifactId>foxspigot-parent</artifactId>
             <version>2-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/FoxSpigot.jar</systemPath>
+            <systemPath>F:/libs/FoxSpigot.jar</systemPath>
         </dependency>
 
         <!--1.7 spigot-->
@@ -107,7 +107,7 @@
             <artifactId>spigot</artifactId>
             <version>1.7.10-R.01</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/spigot-1.7.10-SNAPSHOT-b1657.jar</systemPath>
+            <systemPath>F:/libs/spigot-1.7.10-SNAPSHOT-b1657.jar</systemPath>
         </dependency>
 
         <!--lib-->
@@ -116,7 +116,7 @@
             <artifactId>knockback</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/Carbon-Knockback_API.jar</systemPath>
+            <systemPath>F:/libs/Carbon-Knockback_API.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -132,14 +132,14 @@
             <artifactId>ViaVersion</artifactId>
             <version>3.2.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/ViaVersion-3.2.1.jar</systemPath>
+            <systemPath>F:/libs/ViaVersion-3.2.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>protocolsupport</groupId>
             <artifactId>ProtocolSupport</artifactId>
             <version>4.6</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/protocolsupport-SNAPSHOT.jar</systemPath>
+            <systemPath>F:/libs/protocolsupport-SNAPSHOT.jar</systemPath>
         </dependency>
 
 
@@ -187,14 +187,14 @@
             <artifactId>AquaCoreAPI</artifactId>
             <version>dev-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/AquaCoreAPI.jar</systemPath>
+            <systemPath>F:/libs/AquaCoreAPI.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>net.audidevelopment.core.api</groupId>
             <artifactId>cCoreAPI</artifactId>
             <version>dev-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/cCore-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>F:/libs/cCore-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.gmail.filoghost.holographicdisplays</groupId>
@@ -206,7 +206,8 @@
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
             <version>4.4.0</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>F:/libs/ProtocolLib.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
