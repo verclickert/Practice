@@ -41,7 +41,7 @@ public class Hotbar {
 				if (slot > 0) hotbarEntry = new HotbarEntry(builder.build(), slot - 1);
 				else hotbarEntry = new HotbarEntry(builder.build(), -1);
 
-				if(config.getBoolean(path + "ENABLED")) {
+				if(config.getBoolean(path + "ENABLED") || !config.configuration.contains(path + "ENABLED")) {
                     			items.put(hotbarItem, hotbarEntry);
                 		}
 			} catch (Exception e) {
