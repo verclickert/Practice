@@ -113,7 +113,7 @@ public class ModmodeListener implements Listener {
         if (profile.getState() == ProfileState.STAFF_MODE) {
             event.setCancelled(true);
         }
-    }
+    }*/
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
