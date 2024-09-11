@@ -95,7 +95,7 @@ public class ModmodeListener implements Listener {
         }
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Profile profile = Profile.get(player.getUniqueId());
