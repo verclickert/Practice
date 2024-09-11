@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.Material;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.ConsoleCommandSender;
 import rip.crystal.practice.database.MongoConnection;
@@ -337,6 +338,7 @@ public class cPractice extends JavaPlugin {
     }
 
     private void registerListeners() {
+        BlockBreakEvent
         Arrays.asList(
                 new KitEditorListener(),
                 new PartyListener(),

@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 @AllArgsConstructor
 public class HotbarEntry {
 
-    private ItemStack itemStack;
+    public ItemStack itemStack;
     private int slot;
 
 }

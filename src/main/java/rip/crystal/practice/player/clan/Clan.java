@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
@@ -184,43 +183,53 @@ public class Clan {
 
     public static void init(){
         if (Profile.getIProfile() instanceof MongoDBIProfile) {
-            collection = cPractice.get().getMongoDatabase().getCollection("clans");
-            collection.find().forEach((Block<Document>) document -> {
-                Clan clan = new Clan(document.getString("name"), UUID.fromString(document.getString("owner")));
-                if (document.containsKey("points")) clan.setPoints(document.getInteger("points"));
-                if (document.containsKey("color")) clan.setColor(ChatColor.valueOf(document.getString("color")));
-                if (document.containsKey("players")) {
-                    if (document.get("players") instanceof String) {
-                        JsonArray playersArray = new JsonParser().parse(document.getString("players")).getAsJsonArray();
-                        for (JsonElement jsonElement : playersArray) {
-                            JsonObject jsonObject = jsonElement.getAsJsonObject();
-                            UUID uuid = UUID.fromString(jsonObject.get("uuid").getAsString());
-                            clan.getMembers().add(uuid);
+            try {
+                collection = cPractice.get().getMongoDatabase().getCollection("clans");
+                for (Document document : cPractice.get().getMongoDatabase().getCollection("clans").find()) {
+                    try {
+                        Clan clan = new Clan(document.getString("name"), UUID.fromString(document.getString("owner")));
+                        if (document.containsKey("points")) clan.setPoints(document.getInteger("points"));
+                        if (document.containsKey("color")) clan.setColor(ChatColor.valueOf(document.getString("color")));
+                        if (document.containsKey("players")) {
+                            if (document.get("players") instanceof String) {
+                                JsonArray playersArray = new JsonParser().parse(document.getString("players")).getAsJsonArray();
+                                for (JsonElement jsonElement : playersArray) {
+                                    JsonObject jsonObject = jsonElement.getAsJsonObject();
+                                    UUID uuid = UUID.fromString(jsonObject.get("uuid").getAsString());
+                                    clan.getMembers().add(uuid);
+                                }
+                            }
                         }
+                        clans.put(clan.getName(), clan);
+                    } catch (Exception e) {
+                        Bukkit.getLogger().warning("Couldn't load clan:" + e.toString());
                     }
                 }
-                clans.put(clan.getName(), clan);
-            });
+            } catch (Exception e) {
+                Bukkit.getLogger().warning("Couldn't load clans:" + e.toString());
+            }
         }
         else if (Profile.getIProfile() instanceof FlatFileIProfile) {
             config = cPractice.get().getClansConfig().getConfiguration().getConfigurationSection("clans");
-            for (String key : config.getKeys(false)) {
-                ConfigurationSection section = config.getConfigurationSection(key);
-                Clan clan = new Clan(key, UUID.fromString(section.getString("owner")));
-                if (section.contains("points")) clan.setPoints(section.getInt("points"));
-                if (section.contains("color")) clan.setColor(ChatColor.valueOf(section.getString("color")));
-                if (section.contains("players")) {
-                    if (section.get("players") instanceof String) {
-                        JsonArray playersArray = new JsonParser().parse(section.getString("players")).getAsJsonArray();
-                        for (JsonElement jsonElement : playersArray) {
-                            JsonObject jsonObject = jsonElement.getAsJsonObject();
-                            UUID uuid = UUID.fromString(jsonObject.get("uuid").getAsString());
-                            clan.getMembers().add(uuid);
+            try {
+                for (String key : config.getKeys(false)) {
+                    ConfigurationSection section = config.getConfigurationSection(key);
+                    Clan clan = new Clan(key, UUID.fromString(section.getString("owner")));
+                    if (section.contains("points")) clan.setPoints(section.getInt("points"));
+                    if (section.contains("color")) clan.setColor(ChatColor.valueOf(section.getString("color")));
+                    if (section.contains("players")) {
+                        if (section.get("players") instanceof String) {
+                            JsonArray playersArray = new JsonParser().parse(section.getString("players")).getAsJsonArray();
+                            for (JsonElement jsonElement : playersArray) {
+                                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                                UUID uuid = UUID.fromString(jsonObject.get("uuid").getAsString());
+                                clan.getMembers().add(uuid);
+                            }
                         }
                     }
+                    clans.put(clan.getName(), clan);
                 }
-                clans.put(clan.getName(), clan);
-            }
+            } catch (Exception ignore) {}
         }
 
         TaskUtil.runTimerAsync(() -> clans.values().forEach(Clan::save), 3600, 3600);

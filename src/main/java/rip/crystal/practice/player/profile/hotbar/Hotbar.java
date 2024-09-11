@@ -3,6 +3,7 @@ package rip.crystal.practice.player.profile.hotbar;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import rip.crystal.practice.api.file.FileConfig;
@@ -15,6 +16,7 @@ import rip.crystal.practice.player.profile.hotbar.impl.HotbarItem;
 import rip.crystal.practice.utilities.ItemBuilder;
 import rip.crystal.practice.utilities.PlayerUtil;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class Hotbar {
 	private static final Map<HotbarItem, HotbarEntry> items = new HashMap<>();
 
 	public static void init() {
-		FileConfiguration config = cPractice.get().getConfig();
+		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(cPractice.get().getDataFolder() + "/features/hotbar.yml"));
 
 		for (HotbarItem hotbarItem : HotbarItem.values()) {
 			try {
@@ -46,22 +48,23 @@ public class Hotbar {
                     			items.put(hotbarItem, hotbarEntry);
                 		}
 			} catch (Exception e) {
-				System.out.print("Failed to parse item " + hotbarItem.name());
+				System.out.print("Failed to parse item " + hotbarItem.name() + " -> " + e);
 			}
 		}
-
 		Map<HotbarItem, String> dynamicContent = new HashMap<>();
 		dynamicContent.put(HotbarItem.MAP_SELECTION, "%MAP%");
 		dynamicContent.put(HotbarItem.KIT_SELECTION, "%KIT%");
 
 		for (Map.Entry<HotbarItem, String> entry : dynamicContent.entrySet()) {
 			try {
-				String voteName = Hotbar.getItems().get(entry.getKey()).getItemStack().getItemMeta().getDisplayName();
+				String voteName = Hotbar.items.get(entry.getKey()).itemStack.getItemMeta().getDisplayName();
 				String[] nameSplit = voteName.split(entry.getValue());
 
 				entry.getKey().setPattern(
 						Pattern.compile("(" + nameSplit[0] + ")(.*)(" + (nameSplit.length > 1 ? nameSplit[1] : "") + ")"));
-			} catch (Exception ignore) {}
+			} catch (Exception e) {
+				System.out.print("Failed to load hotbar item: " + e);
+			}
 		}
 	}
 

@@ -107,7 +107,8 @@ public class MongoDBIProfile implements IProfile {
             kitsDocument.put(entry.getKey().getName(), kitsArray.toString());
         }
         document.put("loadouts", kitsDocument);
-
+        System.out.println("MongoDBIProfile.save() L110");
+        System.out.println("Profile.getCollection(): " + profile.getCollection());
         Profile.getCollection().replaceOne(Filters.eq("uuid", profile.getUuid().toString()), document, new ReplaceOptions().upsert(true));
     }
 
