@@ -338,7 +338,6 @@ public class cPractice extends JavaPlugin {
     }
 
     private void registerListeners() {
-        BlockBreakEvent
         Arrays.asList(
                 new KitEditorListener(),
                 new PartyListener(),
