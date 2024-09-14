@@ -174,10 +174,16 @@ public class Arena extends Cuboid {
 		List<Arena> _arenas = new ArrayList<>();
 
 		for (Arena arena : arenas) {
+			System.out.println("arena.isSetup(): " + arena.isSetup());
 			if (!arena.isSetup()) continue;
 
+			System.out.println("kit.getName(): " + kit.getName());
+			System.out.println("arena.getKits(): " + arena.getKits());
 			if (!arena.getKits().contains(kit.getName())) continue;
 
+			System.out.println("kit.getGameRules(): " + kit.getGameRules());
+			System.out.println("arena.isActive()" + arena.isActive());
+			System.out.println("arena.getType(): " + arena.getType());
 			if ((kit.getGameRules().isBuild() || kit.getGameRules().isHcftrap() || kit.getGameRules().isSpleef() || kit.getGameRules().isBridge()) && !arena.isActive() && (arena.getType() == ArenaType.STANDALONE || arena.getType() == ArenaType.DUPLICATE)) {
 				_arenas.add(arena);
 			} else if ((!kit.getGameRules().isBuild() || !kit.getGameRules().isHcftrap() || !kit.getGameRules().isSpleef() || !kit.getGameRules().isBridge()) && arena.getType() == ArenaType.SHARED) {

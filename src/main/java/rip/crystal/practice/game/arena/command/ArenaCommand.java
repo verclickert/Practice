@@ -25,6 +25,7 @@ public class ArenaCommand extends BaseCommand {
         new ArenaSetAuthorCommand();
         new ArenaTeleportCommand();
         new ArenaSetIconCommand();
+        new ArenaRandomTest();
     }
 
     @Command(name = "arena", permission = "cpractice.arena.admin", inGameOnly = false)
