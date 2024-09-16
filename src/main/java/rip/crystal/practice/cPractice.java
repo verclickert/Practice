@@ -106,6 +106,7 @@ import rip.crystal.practice.shop.command.ShopCommand;
 import rip.crystal.practice.shop.command.staff.CoinsStaffCommand;
 import rip.crystal.practice.utilities.Animation;
 import rip.crystal.practice.utilities.InventoryUtil;
+import rip.crystal.practice.utilities.StringUtils;
 import rip.crystal.practice.utilities.TaskUtil;
 import rip.crystal.practice.utilities.chat.CC;
 import rip.crystal.practice.utilities.file.language.LanguageConfigurationFile;
@@ -121,6 +122,8 @@ import rip.crystal.practice.visual.scoreboard.BoardAdapter;
 import rip.crystal.practice.visual.tablist.TabAdapter;
 import rip.crystal.practice.visual.tablist.impl.TabList;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 
 @Getter @Setter
@@ -164,7 +167,7 @@ public class cPractice extends JavaPlugin {
         runTasks();
 
         CC.loadPlugin();
-        
+
     }
 
     @Override
@@ -289,6 +292,7 @@ public class cPractice extends JavaPlugin {
                           databaseConfig.getString("MONGO.DATABASE")
                   );
               }
+              this.mongoConnection.checkConnection();
             } catch (Exception e) {
                 ConsoleCommandSender bmsg = Bukkit.getConsoleSender();
 
@@ -297,6 +301,13 @@ public class cPractice extends JavaPlugin {
                 bmsg.sendMessage(CC.translate("        &cYour MongoDB database is not setup correctly!"));
                 bmsg.sendMessage(CC.translate(     "&cPlease check your MongoDB database and try again."));
                 bmsg.sendMessage(CC.translate("              &4&lTurning cPractice off"));
+                bmsg.sendMessage(CC.translate(CC.CHAT_BAR));
+
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                bmsg.sendMessage(sw.toString());
+
                 bmsg.sendMessage(CC.translate(CC.CHAT_BAR));
                 Bukkit.getServer().getPluginManager().disablePlugin(this);
                 return;
@@ -374,6 +385,9 @@ public class cPractice extends JavaPlugin {
             new MessageCommand();
             new ReplyCommand();
         }
+
+        ////// DEBUG //////
+        new SetConfig();
 
         new CosmeticsCommand();
         new ShopCommand();
