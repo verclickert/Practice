@@ -173,6 +173,7 @@ public class Profile {
 		TaskUtil.runLater(() -> {
 			if (iProfile instanceof MongoDBIProfile) {
 				collection = cPractice.get().getMongoDatabase().getCollection("profiles");
+				System.out.println("Profile.init(): collection: " + collection);
 				for (Document document : cPractice.get().getMongoDatabase().getCollection("profiles").find()) {
 					UUID uuid = UUID.fromString(document.getString("uuid"));
 					Profile profile = new Profile(uuid);

@@ -183,7 +183,9 @@ public class ProfileListener implements Listener {
 			}
 		} else {
 			profile.setColor("&r");
-			throw new IllegalArgumentException("The colored rank of " + player.getName() + " doesn't exist");
+			//throw new IllegalArgumentException("The colored rank of " + player.getName() + " doesn't exist");
+			// WHY WHY WHY; every single throw or early return in this function causes everything to break!
+			// Who thought this would be a good idea? 😭
 		}
 
 		cPractice.get().getEssentials().teleportToSpawn(player);
