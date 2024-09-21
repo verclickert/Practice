@@ -88,71 +88,76 @@ public class Arena extends Cuboid {
 
 		if (configuration.contains("arenas")) {
 			for (String arenaName : configuration.getConfigurationSection("arenas").getKeys(false)) {
-				String path = "arenas." + arenaName;
+				try {
+					String path = "arenas." + arenaName;
 
-				ArenaType arenaType = ArenaType.valueOf(configuration.getString(path + ".type"));
-				Location location1 = LocationUtil.deserialize(configuration.getString(path + ".cuboid.location1"));
-				Location location2 = LocationUtil.deserialize(configuration.getString(path + ".cuboid.location2"));
+					ArenaType arenaType = ArenaType.valueOf(configuration.getString(path + ".type"));
+					Location location1 = LocationUtil.deserialize(configuration.getString(path + ".cuboid.location1"));
+					Location location2 = LocationUtil.deserialize(configuration.getString(path + ".cuboid.location2"));
 
-				Arena arena;
+					Arena arena;
 
-				if (arenaType == ArenaType.STANDALONE) arena = new StandaloneArena(arenaName, location1, location2);
-				else if (arenaType == ArenaType.SHARED) arena = new SharedArena(arenaName, location1, location2);
-				else continue;
+					if (arenaType == ArenaType.STANDALONE) arena = new StandaloneArena(arenaName, location1, location2);
+					else if (arenaType == ArenaType.SHARED) arena = new SharedArena(arenaName, location1, location2);
+					else continue;
 
-				if (configuration.contains(path + ".icon")) {
-					arena.setDisplayIcon(new ItemBuilder(Material.valueOf(configuration.getString(path + ".icon.material")))
-							.durability(configuration.getInt(path + ".icon.durability"))
-							.build());
-				}
-
-				if (configuration.contains(path + ".spawnA"))
-					arena.setSpawnA(LocationUtil.deserialize(configuration.getString(path + ".spawnA")));
-
-				if (configuration.contains(path + ".spawnB"))
-					arena.setSpawnB(LocationUtil.deserialize(configuration.getString(path + ".spawnB")));
-
-				if (configuration.contains(path + ".author")) {
-					String author = configuration.getString(path + ".author");
-					arena.setAuthor(author);
-				}
-
-				if (configuration.contains(path + ".kits")) {
-					for (String kitName : configuration.getStringList(path + ".kits")) {
-						arena.getKits().add(kitName);
+					if (configuration.contains(path + ".icon")) {
+						arena.setDisplayIcon(new ItemBuilder(Material.valueOf(configuration.getString(path + ".icon.material")))
+								.durability(configuration.getInt(path + ".icon.durability"))
+								.build());
 					}
-				}
 
-				if (arena instanceof StandaloneArena && configuration.contains(path + ".spawnred") && configuration.contains(path + ".spawnblue")) {
-					StandaloneArena standaloneArena = (StandaloneArena) arena;
-					location1 = LocationUtil.deserialize(configuration.getString(path + ".spawnred.location1"));
-					location2 = LocationUtil.deserialize(configuration.getString(path + ".spawnred.location2"));
-					standaloneArena.setSpawnRed(new Cuboid(location1, location2));
-					location1 = LocationUtil.deserialize(configuration.getString(path + ".spawnblue.location1"));
-					location2 = LocationUtil.deserialize(configuration.getString(path + ".spawnblue.location2"));
-					standaloneArena.setSpawnBlue(new Cuboid(location1, location2));
-				}
+					if (configuration.contains(path + ".spawnA"))
+						arena.setSpawnA(LocationUtil.deserialize(configuration.getString(path + ".spawnA")));
 
-				if (arena instanceof StandaloneArena && configuration.contains(path + ".duplicates")) {
-					for (String duplicateId : configuration.getConfigurationSection(path + ".duplicates").getKeys(false)) {
-						location1 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".cuboid.location1"));
-						location2 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".cuboid.location2"));
-						Location spawn1 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".spawnA"));
-						Location spawn2 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".spawnB"));
+					if (configuration.contains(path + ".spawnB"))
+						arena.setSpawnB(LocationUtil.deserialize(configuration.getString(path + ".spawnB")));
 
-						Arena duplicate = new Arena(arenaName, location1, location2);
-
-						duplicate.setSpawnA(spawn1);
-						duplicate.setSpawnB(spawn2);
-						duplicate.setKits(arena.getKits());
-
-						((StandaloneArena) arena).getDuplicates().add(duplicate);
-
-						Arena.getArenas().add(duplicate);
+					if (configuration.contains(path + ".author")) {
+						String author = configuration.getString(path + ".author");
+						arena.setAuthor(author);
 					}
-				}
 
-				Arena.getArenas().add(arena);
+					if (configuration.contains(path + ".kits")) {
+						for (String kitName : configuration.getStringList(path + ".kits")) {
+							arena.getKits().add(kitName);
+						}
+					}
+
+					if (arena instanceof StandaloneArena && configuration.contains(path + ".spawnred") && configuration.contains(path + ".spawnblue")) {
+						StandaloneArena standaloneArena = (StandaloneArena) arena;
+						location1 = LocationUtil.deserialize(configuration.getString(path + ".spawnred.location1"));
+						location2 = LocationUtil.deserialize(configuration.getString(path + ".spawnred.location2"));
+						standaloneArena.setSpawnRed(new Cuboid(location1, location2));
+						location1 = LocationUtil.deserialize(configuration.getString(path + ".spawnblue.location1"));
+						location2 = LocationUtil.deserialize(configuration.getString(path + ".spawnblue.location2"));
+						standaloneArena.setSpawnBlue(new Cuboid(location1, location2));
+					}
+
+					if (arena instanceof StandaloneArena && configuration.contains(path + ".duplicates")) {
+						for (String duplicateId : configuration.getConfigurationSection(path + ".duplicates").getKeys(false)) {
+							location1 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".cuboid.location1"));
+							location2 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".cuboid.location2"));
+							Location spawn1 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".spawnA"));
+							Location spawn2 = LocationUtil.deserialize(configuration.getString(path + ".duplicates." + duplicateId + ".spawnB"));
+
+							Arena duplicate = new Arena(arenaName, location1, location2);
+
+							duplicate.setSpawnA(spawn1);
+							duplicate.setSpawnB(spawn2);
+							duplicate.setKits(arena.getKits());
+
+							((StandaloneArena) arena).getDuplicates().add(duplicate);
+
+							Arena.getArenas().add(duplicate);
+						}
+					}
+
+					Arena.getArenas().add(arena);
+				} catch (Exception e) {
+					System.out.println("Couldn't load map: ");
+					e.printStackTrace();
+				}
 			}
 		}
 
