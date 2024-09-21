@@ -109,8 +109,6 @@ public class MatchBuildListener implements Listener {
             } else {
                 blockPlaceEvent.setCancelled(true);
             }
-        } else if (!player.isOp() || player.getGameMode() != GameMode.CREATIVE || profile.getState() == ProfileState.SPECTATING) {
-            blockPlaceEvent.setCancelled(true);
         }
     }
 
@@ -150,8 +148,6 @@ public class MatchBuildListener implements Listener {
             } else {
                 blockBreakEvent.setCancelled(true);
             }
-        } else if (!player.isOp() || player.getGameMode() != GameMode.CREATIVE || profile.getState() == ProfileState.SPECTATING) {
-            blockBreakEvent.setCancelled(true);
         }
     }
 
