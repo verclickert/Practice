@@ -412,6 +412,7 @@ public class cPractice extends JavaPlugin {
         new PartyCommand();
         new KitCommand();
         new KitsCommand();
+        new AfkCommand();
         new KitEditorCommand();
         new ViewInventoryCommand();
         new ToggleScoreboardCommand();

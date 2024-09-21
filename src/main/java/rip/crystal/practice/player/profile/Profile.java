@@ -83,6 +83,7 @@ public class Profile {
 	private TabType tabType = TabType.DEFAULT;
 	private Follow follow;
 	private int coins;
+	private boolean statufAfk;
 
 	public Profile(UUID uuid) {
 		this.uuid = uuid;
@@ -116,6 +117,7 @@ public class Profile {
 		this.color = "&r";
 		this.invites = Maps.newHashMap();
 		this.name = Bukkit.getOfflinePlayer(this.uuid).getName();
+		this.statufAfk = false;
 
 		Kit.getKits().forEach(kit -> this.kitData.put(kit, new ProfileKitData()));
 	}

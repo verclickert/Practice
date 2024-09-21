@@ -17,6 +17,14 @@ public class ChatListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
+		if (event.getRecipients().size() == 1) {
+			Player target = event.getRecipients().iterator().next();
+			Profile targetProfile = Profile.get(target.getUniqueId());
+			if (targetProfile.isStatufAfk()) {
+				event.getPlayer().sendMessage(CC.AQUA + "[this player is afk]");
+			}
+		}
+
 		ChatAttempt chatAttempt = Chat.attemptChatMessage(event.getPlayer(), event.getMessage());
 		ChatAttemptEvent chatAttemptEvent = new ChatAttemptEvent(event.getPlayer(), chatAttempt, event.getMessage());
 
@@ -57,5 +65,4 @@ public class ChatListener implements Listener {
 			}
 		}
 	}
-
 }
