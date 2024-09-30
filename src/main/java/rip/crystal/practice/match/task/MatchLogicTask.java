@@ -59,7 +59,10 @@ public class MatchLogicTask extends BukkitRunnable {
 		}
 		else if (match.getState() == MatchState.ENDING_MATCH) {
 			this.match.getPlacedBlocks().forEach(location -> location.getBlock().setType(Material.AIR));
-			this.match.getChangedBlocks().forEach((blockState) -> blockState.getLocation().getBlock().setType(blockState.getType()));
+			this.match.getChangedBlocks().forEach((blockState) -> {
+				blockState.getLocation().getBlock().setType(blockState.getType());
+				blockState.getLocation().getBlock().setData(blockState.getRawData());
+			});
 			if (nextAction == 0) TaskUtil.run(match::end);
 		}
 	}

@@ -3,6 +3,7 @@ package rip.crystal.practice.utilities;
 import com.google.common.collect.Lists;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -291,10 +292,10 @@ public class InventoryUtil {
 
 	public static ItemStack[] leatherArmor(Color color){
 		return new ItemStack[]{
-				new ItemBuilder(Material.LEATHER_BOOTS).color(color).build(),
-				new ItemBuilder(Material.LEATHER_LEGGINGS).color(color).build(),
-				new ItemBuilder(Material.LEATHER_CHESTPLATE).color(color).build(),
-				new ItemBuilder(Material.LEATHER_HELMET).color(color).build()
+				new ItemBuilder(Material.LEATHER_BOOTS).color(color).enchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1).build(),
+				new ItemBuilder(Material.LEATHER_LEGGINGS).color(color).enchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1).build(),
+				new ItemBuilder(Material.LEATHER_CHESTPLATE).color(color).enchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1).build(),
+				new ItemBuilder(Material.LEATHER_HELMET).color(color).enchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1).build()
 		};
 	}
 }

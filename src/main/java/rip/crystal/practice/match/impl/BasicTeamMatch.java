@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import rip.crystal.practice.Locale;
 import rip.crystal.practice.cPractice;
 import rip.crystal.practice.game.arena.Arena;
+import rip.crystal.practice.game.arena.impl.StandaloneArena;
 import rip.crystal.practice.game.kit.Kit;
 import rip.crystal.practice.match.Match;
 import rip.crystal.practice.match.MatchState;
@@ -89,8 +90,8 @@ public class BasicTeamMatch extends Match {
 			ProfileKitData kitData = profile.getKitData().get(getKit());
 			if (kitData.getKitCount() == 0) {
 				player.getInventory().setContents(getKit().getKitLoadout().getContents());
-				KitUtils.giveBedFightKit(player);
 			}
+			KitUtils.giveBedFightKit(player);
 		}
 
 
@@ -289,6 +290,8 @@ public class BasicTeamMatch extends Match {
 
 	@Override
 	public boolean canEndRound() {
+		System.out.println(participantA.getPlayers());
+		System.out.println(participantB.getPlayers());
 		return participantA.isAllDead() || participantB.isAllDead();
 	}
 
@@ -576,7 +579,7 @@ public class BasicTeamMatch extends Match {
 		Profile profile = Profile.get(player.getUniqueId());
 
 		for (String line : Locale.MATCH_END_DETAILS.getStringList(profile.getLocale())) {
-			if (line.equalsIgnoreCase("<match-inventories>")) {
+			if (line.equalsIgnoreCase("%INVENTORIES%")) {
 
 				BaseComponent[] winners = generateInventoriesComponents(
 					new MessageFormat(Locale.MATCH_END_WINNER_INVENTORY.format(profile.getLocale()))

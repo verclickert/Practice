@@ -113,7 +113,7 @@ public class DuelProcedure {
 						.add("<arena_name>", arena.getName())
 				                .add("<arena_author>", arena.getAuthor())
 						.toList()) {
-					if (msg.contains("<click-to-accept>")) {
+					if (msg.contains("%CLICKABLE%")) {
 						ChatComponentBuilder builder = new ChatComponentBuilder(new MessageFormat(Locale.DUEL_RECEIVED_CLICKABLE
 								.format(targetProfile.getLocale()))
 								.add("<sender_name>", sender.getName())

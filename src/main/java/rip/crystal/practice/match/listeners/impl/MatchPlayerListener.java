@@ -36,17 +36,29 @@ public class MatchPlayerListener implements Listener {
         ItemStack itemStack = playerInteractEvent.getItem();
         if ((playerInteractEvent.getAction() == Action.RIGHT_CLICK_AIR || playerInteractEvent.getAction() == Action.RIGHT_CLICK_BLOCK) && (profile = Profile.get(player.getUniqueId())).getState() == ProfileState.FIGHTING) {
             Match match = profile.getMatch();
-            if (itemStack != null) {
+            if (itemStack != null) {System.out.println("MPL:L39");
                 if (Hotbar.fromItemStack(itemStack) == HotbarItem.SPECTATE_STOP) {
                     match.onDisconnect(player);
                     return;
                 }
                 if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
                     Matcher matcher;
+                    matcher = HotbarItem.KIT_SELECTION.getPattern().matcher(itemStack.getItemMeta().getDisplayName());
                     ItemStack itemStack2 = Hotbar.getItems().get(HotbarItem.KIT_SELECTION).getItemStack();
-                    if (itemStack.getType() == itemStack2.getType() && itemStack.getDurability() == itemStack2.getDurability() && (matcher = HotbarItem.KIT_SELECTION.getPattern().matcher(itemStack.getItemMeta().getDisplayName())).find()) {
+                    System.out.println("itemStack1 Type: " + itemStack.getType());
+                    System.out.println("itemStack1 Durability: " + itemStack.getDurability());
+                    System.out.println("itemStack1 Display Name: " + itemStack.getItemMeta().getDisplayName());
+                    System.out.println("matcher.find(): " + matcher.find());
+                    System.out.println(matcher);
+
+                    System.out.println("itemStack2 Type: " + itemStack2.getType());
+                    System.out.println("itemStack2 Durability: " + itemStack2.getDurability());
+                    System.out.println("itemStack2 Display Name: " + itemStack2.getItemMeta().getDisplayName());
+                    if (itemStack.getType() == itemStack2.getType() && itemStack.getDurability() == itemStack2.getDurability() && matcher.find()) {
+                        System.out.println("MPL:L48");
                         String kitName = matcher.group(2);
                         KitLoadout kitLoadout = null;
+                        System.out.println("MPL:L51:" + kitName);
                         if (kitName.equalsIgnoreCase("Default")) {
                             kitLoadout = match.getKit().getKitLoadout();
                         } else {
@@ -55,7 +67,9 @@ public class MatchPlayerListener implements Listener {
                                 kitLoadout = kitLoadout2;
                             }
                         }
+                        System.out.println("MPL:L59");
                         if (kitLoadout != null) {
+                            System.out.println("MPL:L62");
                             new MessageFormat(Locale.MATCH_GIVE_KIT.format(profile.getLocale())).add("<kit_name>", kitLoadout.getCustomName()).send(player);
                             if (match.getKit().getGameRules().isBridge() || match.getKit().getGameRules().isHcftrap()) {
                                 if(match.getKit().getGameRules().isBridge()) {

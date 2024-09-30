@@ -4,6 +4,9 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.v1_8_R3.block.CraftBlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,8 +14,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Bed;
 import rip.crystal.practice.Locale;
 import rip.crystal.practice.game.arena.Arena;
 import rip.crystal.practice.game.arena.impl.StandaloneArena;
@@ -70,6 +75,13 @@ public class MatchBuildListener implements Listener {
         Profile profile = Profile.get(player.getUniqueId());
         if (profile.getState() == ProfileState.FIGHTING) {
             Match match = profile.getMatch();
+
+            if (match.getKit().getGameRules().isBedFight()) {
+                if (player.getGameMode() != GameMode.SURVIVAL) {
+                    blockPlaceEvent.setCancelled(true);
+                    return;
+                }
+            }
             if ((match.getKit().getGameRules().isBuild() || match.getKit().getGameRules().isHcftrap() && ((BasicTeamMatch)match).getParticipantA().containsPlayer(player.getUniqueId())) && match.getState() == MatchState.PLAYING_ROUND || match.getState() == MatchState.STARTING_ROUND) {
                 if (match.getKit().getGameRules().isSpleef()) {
                     blockPlaceEvent.setCancelled(true);
@@ -84,17 +96,6 @@ public class MatchBuildListener implements Listener {
                     new MessageFormat(Locale.ARENA_REACHED_MAXIMUM.format(profile.getLocale())).send(player);
                     blockPlaceEvent.setCancelled(true);
                     return;
-                }
-                if (arena instanceof StandaloneArena) {
-                    StandaloneArena standaloneArena = (StandaloneArena)arena;
-                    if (standaloneArena.getSpawnBlue() != null && standaloneArena.getSpawnBlue().contains(blockPlaceEvent.getBlockPlaced())) {
-                        blockPlaceEvent.setCancelled(true);
-                        return;
-                    }
-                    if (standaloneArena.getSpawnRed() != null && standaloneArena.getSpawnRed().contains(blockPlaceEvent.getBlockPlaced())) {
-                        blockPlaceEvent.setCancelled(true);
-                        return;
-                    }
                 }
                 if (arena.contains(n, n2, n3)) {
                     if (blockPlaceEvent.getBlockReplacedState() == null || blockPlaceEvent.getBlockReplacedState().getType() == Material.AIR) {
@@ -112,15 +113,76 @@ public class MatchBuildListener implements Listener {
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST)//, ignoreCancelled=true)
     public void onBlockBreakEvent(BlockBreakEvent blockBreakEvent) {
         Player player = blockBreakEvent.getPlayer();
         Profile profile = Profile.get(player.getUniqueId());
+        //Yes, I am really sorry for any future dev who has to read or work with the following lines 💀
         if (profile.getState() == ProfileState.FIGHTING) {
             Match match = profile.getMatch();
-            if(match.getKit().getGameRules().isBedFight()) {
+            if(match.getKit().getGameRules().isBedFight() && match.getState() == MatchState.PLAYING_ROUND) {
+                blockBreakEvent.setCancelled(true);
+                if (player.getGameMode() != GameMode.SURVIVAL) return;
+
+                StandaloneArena standaloneArena = (StandaloneArena) match.getArena();
+                if (standaloneArena.getSpawnBlue() != null) {
+                    if (standaloneArena.getSpawnBlue().contains(blockBreakEvent.getBlock())) {
+                        if (blockBreakEvent.getBlock().getType() == Material.BED_BLOCK) {
+                            if (((BasicTeamMatch) match).getParticipantB().containsPlayer(player.getUniqueId())) {
+                                player.sendMessage("Don't troll");
+                                blockBreakEvent.setCancelled(true);
+                                return;
+                            }
+                            ((BasicTeamMatch) match).getParticipantB().setHasBed(false);
+                        }
+                        blockBreakEvent.setCancelled(false);
+                    }
+                }
+                if (standaloneArena.getSpawnRed() != null) {
+                    if (standaloneArena.getSpawnRed().contains(blockBreakEvent.getBlock())) {
+                        if (blockBreakEvent.getBlock().getType() == Material.BED_BLOCK) {
+                            if (((BasicTeamMatch) match).getParticipantA().containsPlayer(player.getUniqueId())) {
+                                player.sendMessage("Don't troll");
+                                blockBreakEvent.setCancelled(true);
+                                return;
+                            }
+                            ((BasicTeamMatch) match).getParticipantA().setHasBed(false);
+                        }
+                        blockBreakEvent.setCancelled(false);
+                    }
+                }
+                if (match.getPlacedBlocks().remove(blockBreakEvent.getBlock().getLocation())) {
+                    blockBreakEvent.setCancelled(false);
+                } else {
+                    System.out.println("if (blockBreakEvent.getBlock().getType() == Material.BED_BLOCK) { : " + blockBreakEvent.getBlock().getType());
+                    if (blockBreakEvent.getBlock().getType() == Material.BED_BLOCK) {
+                        Bed bed = (Bed) blockBreakEvent.getBlock().getState().getData();
+                        Block second = blockBreakEvent.getBlock().getRelative(!bed.isHeadOfBed()? bed.getFacing() : bed.getFacing().getOppositeFace());
+
+                        BlockState state = blockBreakEvent.getBlock().getState();
+                        state.setType(Material.BED_BLOCK);
+
+                        BlockState secondState = second.getState();
+                        secondState.setType(Material.BED_BLOCK);
+
+                        match.getChangedBlocks().add(secondState);
+                        match.getChangedBlocks().add(state);
+                        second.setType(Material.AIR);
+                        blockBreakEvent.getBlock().setType(Material.AIR);
+                    } else {
+                        match.getChangedBlocks().add(blockBreakEvent.getBlock().getState());
+                    }
+                }
+                if (!blockBreakEvent.isCancelled()) {
+                    if (!blockBreakEvent.getBlock().getDrops().isEmpty()) {
+                        match.getDroppedItems().add(blockBreakEvent.getBlock().getLocation().getWorld().dropItem(blockBreakEvent.getBlock().getLocation(), blockBreakEvent.getBlock().getDrops().stream().findFirst().orElse(null)));
+                    }
+                    blockBreakEvent.getBlock().setType(Material.AIR);
+                    blockBreakEvent.setCancelled(true);
+                }
                 return;
             }
+
             if ((match.getKit().getGameRules().isBuild() || match.getKit().getGameRules().isSpleef() || match.getKit().getGameRules().isHcftrap() && ((BasicTeamMatch)match).getParticipantA().containsPlayer(player.getUniqueId())) && match.getState() == MatchState.PLAYING_ROUND) {
                 if (match.getKit().getGameRules().isSpleef()) {
                     if (blockBreakEvent.getBlock().getType() == Material.SNOW_BLOCK || blockBreakEvent.getBlock().getType() == Material.SNOW) {

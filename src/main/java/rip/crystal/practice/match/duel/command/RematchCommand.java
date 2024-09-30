@@ -24,15 +24,16 @@ public class RematchCommand extends BaseCommand {
 					.send(player);
 			return;
 		}
-
+		System.out.println("RematchCommand:L27");
 		rematchData.validate();
+		System.out.println("RematchCommand:L129");
 
 		if (rematchData.isCancelled()) {
 			new MessageFormat(Locale.REMATCH_CANCELLED.format(profile.getLocale()))
 					.send(player);
 			return;
 		}
-
+		System.out.println("RematchData.isReceive(): " + rematchData.isReceive());
 		if (rematchData.isReceive()) {
 			rematchData.accept();
 		} else {

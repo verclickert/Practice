@@ -38,8 +38,8 @@ public class LeaveMatchCommand extends BaseCommand {
             profile.getMatch().sendMessage(CC.translate(message.replaceAll("<cancelled_by>", player.getName())));
         }
 
-        leaveGame(player);
-        profile.getMatch().onDisconnect(player);
+        profile.getMatch().onDeath(player, true);
+        //leaveGame(player);
         player.sendMessage(CC.translate("&cYou left your match."));
     }
 

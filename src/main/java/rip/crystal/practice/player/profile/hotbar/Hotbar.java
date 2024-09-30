@@ -59,9 +59,9 @@ public class Hotbar {
 			try {
 				String voteName = Hotbar.items.get(entry.getKey()).itemStack.getItemMeta().getDisplayName();
 				String[] nameSplit = voteName.split(entry.getValue());
-
+				// )=: why
 				entry.getKey().setPattern(
-						Pattern.compile("(" + nameSplit[0] + ")(.*)(" + (nameSplit.length > 1 ? nameSplit[1] : "") + ")"));
+						Pattern.compile("(" + nameSplit[0].replace("§", "\\§") + ")(.*)(" + (nameSplit.length > 1 ? nameSplit[1].replace("§", "\\§") : "") + ")"));
 			} catch (Exception e) {
 				System.out.print("Failed to load hotbar item: " + e);
 			}

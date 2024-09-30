@@ -58,8 +58,8 @@ public class VisibilityLogic {
 			if (viewerProfile.getParty() != null && viewerProfile.getParty().containsPlayer(target.getUniqueId())) {
 				viewer.showPlayer(target);
 			} else {
-				if(!target.hasPermission("cpractice.practice.see")) viewer.hidePlayer(target);
-				else viewer.showPlayer(target);
+				//if(!target.hasPermission("cpractice.practice.see")) viewer.hidePlayer(target);
+				viewer.showPlayer(target);
 			}
 			TaskUtil.runAsync(() -> GxNameTag.reloadPlayer(target, viewer));
 		}

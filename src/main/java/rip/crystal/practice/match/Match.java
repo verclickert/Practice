@@ -30,6 +30,7 @@ import rip.crystal.practice.match.impl.BasicTeamRoundMatch;
 import rip.crystal.practice.match.participant.MatchGamePlayer;
 import rip.crystal.practice.match.task.*;
 import rip.crystal.practice.player.cosmetics.impl.killeffects.KillEffectType;
+import rip.crystal.practice.player.nametags.GxNameTag;
 import rip.crystal.practice.player.profile.Profile;
 import rip.crystal.practice.player.profile.ProfileState;
 import rip.crystal.practice.player.profile.hotbar.Hotbar;
@@ -114,11 +115,14 @@ public abstract class Match {
 			} else {
 				player.getInventory().setArmorContents(getKit().getKitLoadout().getArmor());
 				player.getInventory().setContents(getKit().getKitLoadout().getContents());
+
 				//player.sendMessage(Locale.MATCH_GIVE_KIT.format("Default"));
 				new MessageFormat(Locale.MATCH_GIVE_KIT.format(profile.getLocale()))
 						.add("<kit_name>", "Default")
 						.send(player);
 			}
+			if(getKit().getGameRules().isBedFight())
+				KitUtils.giveBedFightKit(player);
 		}
 	}
 
@@ -151,6 +155,10 @@ public abstract class Match {
 					profile.setState(ProfileState.FIGHTING);
 					profile.setMatch(this);
 
+					if (getKit().getGameRules().isBedFight()) {
+						gameParticipant.setHasBed(true);
+					}
+
 					TaskUtil.run(() -> setupPlayer(player));
 					if (getKit().getGameRules().isShowHealth()) {
 						for (GameParticipant<MatchGamePlayer> gameParticipantOther : getParticipants()) {
@@ -164,7 +172,7 @@ public abstract class Match {
 								}
 
 								objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
-								objective.setDisplayName(ChatColor.RED + StringEscapeUtils.unescapeJava("\u2764"));
+								objective.setDisplayName(ChatColor.RED + StringEscapeUtils.unescapeJava("❤"));
 								objective.getScore(other.getName()).setScore((int) Math.floor(other.getHealth() / 2));
 							}
 						}
@@ -390,13 +398,6 @@ public abstract class Match {
 			end();
 			return;
 		}
-		if (getKit().getGameRules().isBedFight()) {
-			BasicTeamRoundMatch match = (BasicTeamRoundMatch) this;
-			if (match.getParticipantA().containsPlayer(dead.getUniqueId())) match.setWinningParticipant(match.getParticipantB());
-			else match.setWinningParticipant(match.getParticipantA());
-			end();
-			return;
-		}
 
 		// Don't continue if the match is already ending
 		if (!(state == MatchState.STARTING_ROUND || state == MatchState.PLAYING_ROUND)) return;
@@ -406,18 +407,71 @@ public abstract class Match {
 		if (deadGamePlayer != null) {
 			deadGamePlayer.setDisconnected(true);
 
-			if (!deadGamePlayer.isDead()) onDeath(dead);
+			if (!deadGamePlayer.isDead()) onDeath(dead, true);
 		}
 	}
 
 	public void onDeath(Player dead) {
+		onDeath(dead, false);
+	}
+
+	public void onDeath(Player dead, boolean force) {
+		System.out.println("SOME DEBUG INFORMATION");
+		if (force) {
+			onFullDeath(dead);
+			return;
+		}
+		Profile profile = Profile.get(dead.getUniqueId());
+		if (getKit().getGameRules().isBedFight() && getParticipant(dead).isHasBed()) {
+			BasicTeamMatch match = (BasicTeamMatch) this;
+			profile.setState(ProfileState.SPECTATING);
+			dead.spigot().setCollidesWithEntities(false);
+
+			dead.getInventory().clear();
+			dead.setVelocity(new Vector());
+			TaskUtil.runLater(() -> {
+				dead.setGameMode(GameMode.ADVENTURE);
+				dead.setAllowFlight(true);
+				dead.setFlying(true);
+			}, 5L);
+
+			if (dead.getLocation().getY() < 0) {
+				dead.getLocation().setY(0);
+			}
+
+			System.out.println("basicKill() l-1");
+			basicKill(dead, PlayerUtil.getLastAttacker(dead));
+			System.out.println("basicKill() l+1");
+			TaskUtil.runLater(() -> {
+				System.out.println("RESET");
+				profile.setState(ProfileState.FIGHTING);
+				reloadVisibilityForAll(dead);
+				PlayerUtil.reset(dead);
+				Location spawn = match.getParticipantA().containsPlayer(dead.getUniqueId()) ?
+						match.getArena().getSpawnA() : match.getArena().getSpawnB();
+				dead.teleport(spawn.add(0, 2, 0));
+				if (profile.getSelectedKit() == null) {
+					dead.getInventory().setContents(getKit().getKitLoadout().getContents());
+				} else {
+					dead.getInventory().setContents(profile.getSelectedKit().getContents());
+				}
+				KitUtils.giveBedFightKit(dead);
+			}, 100L);
+		} else {
+			onFullDeath(dead);
+		}
+	}
+
+	private void onFullDeath(Player dead) {
 		// Don't continue if the match is already ending
 		if (!(state == MatchState.STARTING_ROUND || state == MatchState.PLAYING_ROUND)) return;
 
 		MatchGamePlayer deadGamePlayer = getGamePlayer(dead);
 
 		// Don't continue if the player is already dead
+		System.out.println("Match.java:l463");
 		if (deadGamePlayer.isDead()) return;
+		System.out.println("Match.java:l465");
 
 		// Get killer
 		Player killer = PlayerUtil.getLastAttacker(dead);
@@ -425,27 +479,9 @@ public abstract class Match {
 		// Set player as dead
 		if (getKit().getGameRules().isBridge()) {
 			getParticipant(dead).getPlayers().forEach(gamePlayer -> gamePlayer.setDead(false));
-		} else if (getKit().getGameRules().isBedFight()) {
-			getParticipant(dead).getPlayers().forEach(gamePlayer -> gamePlayer.setDead(false));
 		} else deadGamePlayer.setDead(true);
 
 		Profile profile = Profile.get(dead.getUniqueId());
-
-		if(killer != null) {
-			Profile winner = Profile.get(killer.getUniqueId());
-
-			KillEffectType effect = winner.getKillEffectType();
-			if (effect != null && effect.getCallable() != null) {
-				for (GameParticipant<MatchGamePlayer> gameParticipant : getParticipants()) {
-					for (MatchGamePlayer gamePlayer : gameParticipant.getPlayers()) {
-						effect.getCallable().call(dead.getLocation().clone().add(0.0, 1.0, 0.0));
-					}
-				}
-			}
-
-			// Add coins to winner
-			winner.addCoins(10);
-		}
 
 		if (killer != null) { // If killer isn't null then add a kill to the player.
 			MatchGamePlayer matchGamePlayer = getGamePlayer(killer);
@@ -462,33 +498,8 @@ public abstract class Match {
 
 		snapshots.add(snapshot);
 
-		for (GameParticipant<MatchGamePlayer> gameParticipant : getParticipants()) {
-			for (MatchGamePlayer gamePlayer : gameParticipant.getPlayers()) {
-				if (!gamePlayer.isDisconnected()) {
-					Player player = gamePlayer.getPlayer();
-
-					if (player != null) {
-						if (!getKit().getGameRules().isSumo() && !getKit().getGameRules().isBridge() && !getKit().getGameRules().isBedFight()) {
-							VisibilityLogic.handle(player, dead);
-						}
-						if (!getKit().getGameRules().isBridge() || !getKit().getGameRules().isBedFight()) {
-							sendDeathMessage(player, dead, killer);
-						}
-					}
-				}
-			}
-		}
-
-		// Handle visibility for spectators
-		// Send death message
-		for (Player player : getSpectatorsAsPlayers()) {
-			if (!getKit().getGameRules().isSumo() && !getKit().getGameRules().isBridge() && !getKit().getGameRules().isBedFight()) {
-				VisibilityLogic.handle(player, dead);
-			}
-			if (!getKit().getGameRules().isBridge() || !getKit().getGameRules().isBedFight()) {
-				sendDeathMessage(player, dead, killer);
-			}
-		}
+		basicKill(dead, killer);
+		System.out.println("Match.java:l493");
 
 		if (canEndRound()) {
 			state = MatchState.ENDING_ROUND;
@@ -522,7 +533,7 @@ public abstract class Match {
 						KitUtils.giveBridgeKit(dead);
 					}, 5L);
 				}
-				if (getKit().getGameRules().isBedFight()) {
+				if (getKit().getGameRules().isBedFight()) { // Never called ig
 					BasicTeamRoundMatch teamRoundMatch = (BasicTeamRoundMatch) this;
 
 					Location spawn = teamRoundMatch.getParticipantA().containsPlayer(dead.getUniqueId()) ?
@@ -544,6 +555,78 @@ public abstract class Match {
 		if (Tournament.getTournament() != null) {
 			if (Tournament.getTournament().getPlayers().contains(dead.getUniqueId())) {
 				profile.setInTournament(false);
+			}
+		}
+	}
+
+	private void basicKill(Player dead, Player killer) {
+		if(killer != null) {
+			Profile winner = Profile.get(killer.getUniqueId());
+
+			KillEffectType effect = winner.getKillEffectType();
+			if (effect != null && effect.getCallable() != null) {
+				for (GameParticipant<MatchGamePlayer> gameParticipant : getParticipants()) {
+					for (MatchGamePlayer gamePlayer : gameParticipant.getPlayers()) {
+						effect.getCallable().call(dead.getLocation().clone().add(0.0, 1.0, 0.0));
+					}
+				}
+			}
+
+			// Add coins to winner
+			winner.addCoins(10);
+		}
+
+		for (GameParticipant<MatchGamePlayer> gameParticipant : getParticipants()) {
+			for (MatchGamePlayer gamePlayer : gameParticipant.getPlayers()) {
+				if (!gamePlayer.isDisconnected()) {
+					Player player = gamePlayer.getPlayer();
+
+					if (player != null) {
+						if (!getKit().getGameRules().isSumo() && !getKit().getGameRules().isBridge()) {
+							player.hidePlayer(dead);
+							TaskUtil.runAsync(() -> GxNameTag.reloadPlayer(player, dead));
+							//VisibilityLogic.handle(player, dead);
+						}
+						if (!getKit().getGameRules().isBridge() || !getKit().getGameRules().isBedFight()) {
+							sendDeathMessage(player, dead, killer);
+						}
+					}
+				}
+			}
+		}
+
+		// Handle visibility for spectators
+		// Send death message
+		for (Player player : getSpectatorsAsPlayers()) {
+			if (!getKit().getGameRules().isSumo() && !getKit().getGameRules().isBridge()) {
+				player.hidePlayer(dead);
+				TaskUtil.runAsync(() -> GxNameTag.reloadPlayer(player, dead));
+				//VisibilityLogic.handle(player, dead);
+			}
+			if (!getKit().getGameRules().isBridge() || !getKit().getGameRules().isBedFight()) {
+				sendDeathMessage(player, dead, killer);
+			}
+		}
+	}
+	private void reloadVisibilityForAll(Player target) {
+		for (GameParticipant<MatchGamePlayer> gameParticipant : getParticipants()) {
+			for (MatchGamePlayer gamePlayer : gameParticipant.getPlayers()) {
+				if (!gamePlayer.isDisconnected()) {
+					Player player = gamePlayer.getPlayer();
+
+					if (player != null) {
+						if (!getKit().getGameRules().isSumo() && !getKit().getGameRules().isBridge()) {
+							VisibilityLogic.handle(player, target);
+						}
+					}
+				}
+			}
+		}
+
+		for (Player player : getSpectatorsAsPlayers()) {
+			if (!getKit().getGameRules().isSumo() && !getKit().getGameRules().isBridge()) {
+
+				VisibilityLogic.handle(player, target);
 			}
 		}
 	}

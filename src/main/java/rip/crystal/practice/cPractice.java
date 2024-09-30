@@ -64,10 +64,7 @@ import rip.crystal.practice.match.Match;
 import rip.crystal.practice.match.command.*;
 import rip.crystal.practice.match.duel.command.*;
 import rip.crystal.practice.match.listeners.MatchListener;
-import rip.crystal.practice.match.listeners.impl.MatchBuildListener;
-import rip.crystal.practice.match.listeners.impl.MatchPearlListener;
-import rip.crystal.practice.match.listeners.impl.MatchPlayerListener;
-import rip.crystal.practice.match.listeners.impl.MatchSpecialListener;
+import rip.crystal.practice.match.listeners.impl.*;
 import rip.crystal.practice.player.clan.Clan;
 import rip.crystal.practice.player.clan.ClanListener;
 import rip.crystal.practice.player.clan.commands.ClanCommand;
@@ -290,6 +287,7 @@ public class cPractice extends JavaPlugin {
                   );
               }
               this.mongoConnection.checkConnection();
+              this.mongoDatabase = mongoConnection.getMongoDatabase();
             } catch (Exception e) {
                 ConsoleCommandSender bmsg = Bukkit.getConsoleSender();
 
@@ -355,6 +353,7 @@ public class cPractice extends JavaPlugin {
                 new MatchPlayerListener(),
                 new MatchBuildListener(),
                 new MatchSpecialListener(),
+                //new MatchMoveListener(),
                 new QueueListener(),
                 new ArenaListener(),
                 new EventGameListener(),

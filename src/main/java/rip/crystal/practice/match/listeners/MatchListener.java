@@ -36,7 +36,7 @@ import java.util.List;
 
 public class MatchListener implements Listener {
 
-	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerPickupItemEvent(PlayerPickupItemEvent event) {
 		Profile profile = Profile.get(event.getPlayer().getUniqueId());
 
@@ -54,6 +54,11 @@ public class MatchListener implements Listener {
 			if (event.getItem().getItemStack().getType().name().contains("BOOK")) {
 				event.setCancelled(true);
 				return;
+			}
+
+			if (profile.getMatch().getKit().getGameRules().isBedFight() && event.getItem().getItemStack().getType() == Material.BED) {
+				event.getItem().remove();
+				event.setCancelled(true);
 			}
 
 			Iterator<Item> itemIterator = profile.getMatch().getDroppedItems().iterator();
@@ -124,11 +129,10 @@ public class MatchListener implements Listener {
 				match.sendDeathMessage(event.getEntity(), killer);
 			}
 			Player killer = PlayerUtil.getLastAttacker(event.getEntity());
-			if(killer == null) {
-				return;
+			if(killer != null) {
+				Profile killerProfile = Profile.get(killer.getUniqueId());
+				killerProfile.getKitData().get(match.getKit()).incrementStreak();
 			}
-			Profile killerProfile = Profile.get(killer.getUniqueId());
-			killerProfile.getKitData().get(match.getKit()).incrementStreak();
 
 			if(profile.getKitData().get(match.getKit()).hasStreak()) {
 				profile.getKitData().get(match.getKit()).resetStreak();
@@ -155,22 +159,6 @@ public class MatchListener implements Listener {
 				event.getDrops().clear();
 
 			profile.getMatch().onDeath(event.getEntity());
-		}
-	}
-
-	@EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-	public void onLow(final PlayerMoveEvent event) {
-		Player player = event.getPlayer();
-		Profile profile = Profile.get(player.getUniqueId());
-		Match match = profile.getMatch();
-		if (profile.getState() == ProfileState.FIGHTING) {
-			if (match.getKit().getGameRules().isBridge()) {
-				if (player.getLocation().getBlockY() <= 30) {
-					Player killer = PlayerUtil.getLastAttacker(event.getPlayer());
-					match.sendDeathMessage(event.getPlayer(), killer);
-					profile.getMatch().onDeath(player);
-				}
-			}
 		}
 	}
 

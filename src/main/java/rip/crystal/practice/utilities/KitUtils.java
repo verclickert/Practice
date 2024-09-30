@@ -46,14 +46,14 @@ public class KitUtils {
             if (teamMatch.getParticipantA().containsPlayer(player.getUniqueId())) {
                 player.getInventory().setArmorContents(armorRed);
                 player.getInventory().all(Material.WOOL).forEach((key, value) -> {
-                    player.getInventory().setItem(key, new ItemBuilder(Material.STAINED_CLAY).durability(14).amount(64).build());
-                    player.getInventory().setItem(key, new ItemBuilder(Material.STAINED_CLAY).durability(14).amount(64).build());
+                    player.getInventory().setItem(key, new ItemBuilder(Material.WOOL).durability(14).amount(64).build());
+                    player.getInventory().setItem(key, new ItemBuilder(Material.WOOL).durability(14).amount(64).build());
                 });
             } else {
                 player.getInventory().setArmorContents(armorBlue);
                 player.getInventory().all(Material.WOOL).forEach((key, value) -> {
-                    player.getInventory().setItem(key, new ItemBuilder(Material.STAINED_CLAY).durability(11).amount(64).build());
-                    player.getInventory().setItem(key, new ItemBuilder(Material.STAINED_CLAY).durability(11).amount(64).build());
+                    player.getInventory().setItem(key, new ItemBuilder(Material.WOOL).durability(11).amount(64).build());
+                    player.getInventory().setItem(key, new ItemBuilder(Material.WOOL).durability(11).amount(64).build());
                 });
             }
             player.updateInventory();

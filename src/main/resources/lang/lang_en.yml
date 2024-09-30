@@ -194,6 +194,12 @@ QUEUE:
   NO_ARENAS: '&cNo arenas available'
   FOUND_RANKED_MATCH: '&fFound opponent &c<name> &c(<elo>) &fvs &c<opponent> &c(<opponent-elo>)'
   FOUND_UNRANKED_MATCH: '&fFound opponent &c<name> &cvs &c<opponent>'
+  UNRANKED:
+    NAME_PREFIXED: '§e'
+    NAME_SUFFIX: ' §5NEW!'
+  RANKED:
+    NAME_PREFIXED: '§e'
+    NAME_SUFFIX: ' §5NEW!'
 MATCH:
   GIVE_KIT: '&fGiving you the &c<kit_name> &fkit.'
   CANT_DROP_SWORD: '&cYou may not drop your sword.'

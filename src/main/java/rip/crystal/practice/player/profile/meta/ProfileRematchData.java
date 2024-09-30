@@ -111,9 +111,11 @@ public class ProfileRematchData {
 
 	public void accept() {
 		this.validate();
+		System.out.println("ProfileRematchData:L114");
 
 		Player sender = cPractice.get().getServer().getPlayer(this.sender);
 		Player target = cPractice.get().getServer().getPlayer(this.target);
+		System.out.println("ProfileRematchData:L118");
 
 		if (sender == null || target == null || !sender.isOnline() || !target.isOnline()) {
 			return;
@@ -126,13 +128,14 @@ public class ProfileRematchData {
 			sender.sendMessage(CC.RED + "You cannot duel right now.");
 			return;
 		}
-
+		System.out.println("ProfileRematchData:L131");
 		if (targetProfile.isBusy()) {
 			sender.sendMessage(target.getDisplayName() + CC.RED + " is currently busy.");
 			return;
 		}
 
 		Arena arena = this.arena;
+		System.out.println("ProfileRematchData:L138");
 
 		if (arena == null || arena.isActive()) {
 			arena = Arena.getRandomArena(kit);
@@ -189,6 +192,7 @@ public class ProfileRematchData {
 	}
 
 	public void cancel() {
+		System.out.println("ProfileRematchData:L195(canceled)");
 		this.cancelled = true;
 
 		for (UUID uuid : new UUID[]{ sender, target }) {
